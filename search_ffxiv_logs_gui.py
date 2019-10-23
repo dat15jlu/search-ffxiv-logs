@@ -39,14 +39,23 @@ class SearchFFXIVLogsApp(tk.Tk):
 
         self.b1 = tk.Button(self, text="SEARCH", font=self.font_label, command=self.search).grid(row=3, columnspan=2)
 
+        self.status = tk.Label(self, text="Press SEARCH to begin...", font=self.font_entry)
+        self.status.grid(row=4, columnspan=2)
+
     def search(self):
         dir_name = self.e1.get()
         regex = self.e2.get()
         out_file = self.e3.get()
 
+        self.status['text'] = "Searching ..."
+        self.update()
+
         files = [dir_name + "/" + file for file in listdir(dir_name)]
         all_matches = util.find_all_matches(files, regex)
         write_to(all_matches, out_file)
+
+        self.status['text'] = "Done!"
+        self.update()
 
 
 app = SearchFFXIVLogsApp()
