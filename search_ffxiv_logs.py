@@ -3,6 +3,13 @@ import regex as re
 import sys
 
 
+def printable():
+    return '0123456789' \
+           'abcdefghijklmnopqrstuvwxyz' \
+           'ABCDEFGHIJKLMNOPQRSTUVWXYZ' \
+           '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~ '
+
+
 def main():
     if len(sys.argv) > 2:
         files = [sys.argv[1] + "/" + file for file in listdir(sys.argv[1])]
@@ -36,28 +43,27 @@ def print_matches(all_matches):
                 print(match)
 
 
-def find_all_matches(files, regex):
+def find_all_matches(files, regex, w_size=120):
     all_matches = {}
     for file in files:
         matches_in_file = []
         contents = read_file_to_string(file)
         matches = re.finditer(regex, contents)
         for match in matches:
-            span = match.span()[0]
-            start = span
-            end = span + 120
+            span = match.span()[1]  # pivot = index of last character
+            start = span - int(w_size/2)
+            end = span + int(w_size/2)
             if start < 0:
                 start = 0
             if end >= len(contents):
                 end = len(contents) - 1
             matches_in_file.append(contents[start:end])
-        # exit(0)
         all_matches[file] = matches_in_file
     return all_matches
 
 
 def read_file_to_string(file):
-    interesting_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789()[],.?!:' "
+    interesting_chars = printable()
     f = open(file, encoding="ISO-8859-1")
     contents = ""
     while True:
