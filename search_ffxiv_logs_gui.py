@@ -18,7 +18,7 @@ def write_to(all_matches, out_file):
 
 def get_time_of_day():
     time_object = datetime.datetime.now()
-    return "[{}:{}] ".format(time_object.hour, time_object.minute)
+    return "[{:02d}:{:02d}] ".format(time_object.hour, time_object.minute)
 
 
 class SearchFFXIVLogsApp(tk.Tk):
