@@ -43,12 +43,15 @@ def print_matches(all_matches):
                 print(match)
 
 
-def find_all_matches(files, regex, w_size=120):
+def find_all_matches(files, regex, is_case_sensitive=True, w_size=120):
     all_matches = {}
     for file in files:
         matches_in_file = []
         contents = read_file_to_string(file)
-        matches = re.finditer(regex, contents)
+        if is_case_sensitive:
+            matches = re.finditer(regex, contents)
+        else:
+            matches = re.finditer(regex, contents, re.IGNORECASE)
         for match in matches:
             span = match.span()[1]  # pivot = index of last character
             start = span - int(w_size/2)
