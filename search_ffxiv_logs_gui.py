@@ -5,7 +5,12 @@ import tkinter as tk
 import datetime
 
 
-def write_to(all_matches, out_file):
+def no_such_dir(dir_name):
+    return 'Could not find directory "' + dir_name + '". ' + \
+           'Please check the directory name, and verify that it is located in the same directory as this program.'
+
+
+def write_to(out_file, all_matches):
     f_out = open(out_file, "w")
     for key in all_matches.keys():
         if len(all_matches[key]) > 0:
@@ -21,9 +26,14 @@ def get_time_of_day():
     return "[{:02d}:{:02d}] ".format(time_object.hour, time_object.minute)
 
 
+def no_matches_for(regex):
+    return 'Found no matches for "' + regex + '". Please review your search term and try again.'
+
+
 class SearchFFXIVLogsApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
+        self.resizable(False, False)
         self.font_label = ("Helvetica", 12, "bold")
         self.font_entry = ("Helvetica", 12)
         self.title("Search FFXIV Logs")
@@ -54,9 +64,9 @@ class SearchFFXIVLogsApp(tk.Tk):
         tk.Button(self, text="SEARCH", font=self.font_label, command=self.search)\
             .grid(row=4, columnspan=2, pady=5)
 
-        self.status = tk.Text(self, font=self.font_entry, state='disabled', width=35, height=10)
+        self.status = tk.Text(self, font=self.font_entry, state='disabled', width=35, height=10, wrap=tk.WORD)
         self.status.grid(row=5, columnspan=2)
-        self.print_to_console("Press SEARCH to begin...")
+        self.print_to_console("Press SEARCH to begin ...")
 
     def print_to_console(self, message):
         self.status['state'] = 'normal'
@@ -64,6 +74,7 @@ class SearchFFXIVLogsApp(tk.Tk):
         formatted_message = time + message + '\n'
         self.status.insert(tk.INSERT, formatted_message)
         self.status['state'] = 'disabled'
+        self.update()
 
     def search(self):
         dir_name = self.e1.get()
@@ -71,16 +82,32 @@ class SearchFFXIVLogsApp(tk.Tk):
         out_file = self.e3.get()
         is_case_sensitive = self.is_case_sensitive.get()
 
-        self.print_to_console("Searching ...")
-        self.update()
+        try:
+            files = [dir_name + "/" + file for file in listdir(dir_name)]
+        except FileNotFoundError:
+            self.print_to_console(no_such_dir(dir_name))
+            return
 
-        files = [dir_name + "/" + file for file in listdir(dir_name)]
+        self.print_to_console("Searching {} files ...".format(len(files)))
+
         all_matches = util.find_all_matches(files, regex, is_case_sensitive)
-        write_to(all_matches, out_file)
+        nbr_of_matches = 0
+        nbr_of_matched_files = 0
+        for file in all_matches.keys():
+            if len(all_matches[file]) > 0:
+                nbr_of_matches += len(all_matches[file])
+                nbr_of_matched_files += 1
 
-        self.print_to_console("Done ...")
-        self.print_to_console("Press SEARCH to begin once more...")
-        self.update()
+        if nbr_of_matches == 0:
+            self.print_to_console(no_matches_for(regex))
+            return
+
+        self.print_to_console("Search complete. There was {} matches across {} files."
+                              .format(nbr_of_matches, nbr_of_matched_files))
+        self.print_to_console("Writing matches to file {} ..."
+                              .format(out_file))
+        write_to(out_file, all_matches)
+        self.print_to_console("Done!")
 
 
 app = SearchFFXIVLogsApp()
