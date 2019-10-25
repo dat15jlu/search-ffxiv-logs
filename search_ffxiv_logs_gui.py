@@ -95,6 +95,10 @@ class SearchFFXIVLogsApp(tk.Tk):
         self.status.grid(row=5, columnspan=2)
         widgets.append(self.status)
 
+        self.credits = tk.Label(self, text="<< Created by Annie Keito @ Mateus >>", font=self.font_label)
+        self.credits.grid(row=6, columnspan=2)
+        widgets.append(self.credits)
+
         # Apply dark mode
         self.configure(bg=self.bg_color)
         self.case_check.configure(activebackground=self.bg_color)  # stay dark while pressed
@@ -103,12 +107,17 @@ class SearchFFXIVLogsApp(tk.Tk):
             widget.configure(bg=self.bg_color)
             widget.configure(fg=self.fg_color)
 
+        self.emptyConsole = True
         self.print_to_console("Press SEARCH to begin ...")
 
     def print_to_console(self, message):
         self.status['state'] = 'normal'
         time = get_time_of_day()
-        formatted_message = time + message + '\n'
+        if self.emptyConsole:
+            formatted_message = time + message
+            self.emptyConsole = False
+        else:
+            formatted_message = '\n' + time + message
         self.status.insert(tk.INSERT, formatted_message)
         self.status['state'] = 'disabled'
         self.status.see("end")  # auto scroll status window
