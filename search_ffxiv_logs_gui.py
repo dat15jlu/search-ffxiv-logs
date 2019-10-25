@@ -30,6 +30,16 @@ def no_matches_for(regex):
     return 'Found no matches for "' + regex + '". Please review your search term and try again.'
 
 
+def count_occurrences(all_matches):
+    nbr_of_matches = 0
+    nbr_of_matched_files = 0
+    for file in all_matches.keys():
+        if len(all_matches[file]) > 0:
+            nbr_of_matches += len(all_matches[file])
+            nbr_of_matched_files += 1
+    return nbr_of_matched_files, nbr_of_matches
+
+
 class SearchFFXIVLogsApp(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
@@ -38,6 +48,8 @@ class SearchFFXIVLogsApp(tk.Tk):
         self.font_entry = ("Helvetica", 12)
         self.title("Search FFXIV Logs")
         self.is_case_sensitive = tk.IntVar()
+        self.bg_color = '#36393F'
+        self.fg_color = '#FFFFFF'
 
         widgets = []
 
@@ -65,29 +77,31 @@ class SearchFFXIVLogsApp(tk.Tk):
         self.e2.grid(row=1, column=1)
         widgets.append(self.e2)
 
-        self.case = tk.Checkbutton(self, font=self.font_entry, text="Case Sensitive",
-                                   variable=self.is_case_sensitive, selectcolor="black")
-        self.case.select()  # checked by default
-        self.case.grid(row=2, column=1, sticky='W')
-        widgets.append(self.case)
+        self.case_check = tk.Checkbutton(self, font=self.font_entry, text="Case Sensitive",
+                                         variable=self.is_case_sensitive, selectcolor="black")
+        self.case_check.select()  # checked by default
+        self.case_check.grid(row=2, column=1, sticky='W')
+        widgets.append(self.case_check)
 
         self.e3 = tk.Entry(self, font=self.font_entry, textvariable=self.default_e3)
         self.e3.grid(row=3, column=1)
         widgets.append(self.e3)
 
-        self.b = tk.Button(self, text="SEARCH", font=self.font_label, command=self.search)
-        self.b.grid(row=4, columnspan=2, pady=5)
-        widgets.append(self.b)
+        self.button = tk.Button(self, text="SEARCH", font=self.font_label, command=self.search)
+        self.button.grid(row=4, columnspan=2, pady=5)
+        widgets.append(self.button)
 
         self.status = tk.Text(self, font=self.font_entry, state='disabled', width=35, height=10, wrap=tk.WORD)
         self.status.grid(row=5, columnspan=2)
         widgets.append(self.status)
 
         # Apply dark mode
-        self.configure(bg='#323639')
+        self.configure(bg=self.bg_color)
+        self.case_check.configure(activebackground=self.bg_color)  # stay dark while pressed
+        self.button.configure(activebackground=self.bg_color)  # stay dark while pressed
         for widget in widgets:
-            widget.configure(bg='#323639')
-            widget.configure(fg='#FFFFFF')
+            widget.configure(bg=self.bg_color)
+            widget.configure(fg=self.fg_color)
 
         self.print_to_console("Press SEARCH to begin ...")
 
@@ -114,12 +128,7 @@ class SearchFFXIVLogsApp(tk.Tk):
         self.print_to_console("Searching {} files ...".format(len(files)))
 
         all_matches = util.find_all_matches(files, regex, is_case_sensitive)
-        nbr_of_matches = 0
-        nbr_of_matched_files = 0
-        for file in all_matches.keys():
-            if len(all_matches[file]) > 0:
-                nbr_of_matches += len(all_matches[file])
-                nbr_of_matched_files += 1
+        nbr_of_matched_files, nbr_of_matches = count_occurrences(all_matches)
 
         if nbr_of_matches == 0:
             self.print_to_console(no_matches_for(regex))
