@@ -39,33 +39,56 @@ class SearchFFXIVLogsApp(tk.Tk):
         self.title("Search FFXIV Logs")
         self.is_case_sensitive = tk.IntVar()
 
-        tk.Label(self, text="Directory name:", font=self.font_label)\
-            .grid(row=0, sticky='E')
-        tk.Label(self, text="Search term:", font=self.font_label)\
-            .grid(row=1, sticky='E')
-        tk.Label(self, text="Output file:", font=self.font_label)\
-            .grid(row=3, sticky='E')
+        widgets = []
+
+        self.l1 = tk.Label(self, text="Directory name:", font=self.font_label)
+        self.l1.grid(row=0, sticky='E')
+        widgets.append(self.l1)
+
+        self.l2 = tk.Label(self, text="Search term:", font=self.font_label)
+        self.l2.grid(row=1, sticky='E')
+        widgets.append(self.l2)
+
+        self.l3 = tk.Label(self, text="Output file:", font=self.font_label)
+        self.l3.grid(row=3, sticky='E')
+        widgets.append(self.l3)
 
         self.default_e1 = tk.StringVar(self, value="log")
         self.default_e2 = tk.StringVar(self, value="Annie Keito")
         self.default_e3 = tk.StringVar(self, value="output.txt")
 
         self.e1 = tk.Entry(self, font=self.font_entry, textvariable=self.default_e1)
-        self.e2 = tk.Entry(self, font=self.font_entry, textvariable=self.default_e2)
-        self.e3 = tk.Entry(self, font=self.font_entry, textvariable=self.default_e3)
-        self.case = tk.Checkbutton(self, font=self.font_entry, text="Case Sensitive", variable=self.is_case_sensitive)
-        self.case.select()  # checked by default
-
         self.e1.grid(row=0, column=1)
-        self.e2.grid(row=1, column=1)
-        self.case.grid(row=2, column=1, sticky='W')
-        self.e3.grid(row=3, column=1)
+        widgets.append(self.e1)
 
-        tk.Button(self, text="SEARCH", font=self.font_label, command=self.search)\
-            .grid(row=4, columnspan=2, pady=5)
+        self.e2 = tk.Entry(self, font=self.font_entry, textvariable=self.default_e2)
+        self.e2.grid(row=1, column=1)
+        widgets.append(self.e2)
+
+        self.case = tk.Checkbutton(self, font=self.font_entry, text="Case Sensitive",
+                                   variable=self.is_case_sensitive, selectcolor="black")
+        self.case.select()  # checked by default
+        self.case.grid(row=2, column=1, sticky='W')
+        widgets.append(self.case)
+
+        self.e3 = tk.Entry(self, font=self.font_entry, textvariable=self.default_e3)
+        self.e3.grid(row=3, column=1)
+        widgets.append(self.e3)
+
+        self.b = tk.Button(self, text="SEARCH", font=self.font_label, command=self.search)
+        self.b.grid(row=4, columnspan=2, pady=5)
+        widgets.append(self.b)
 
         self.status = tk.Text(self, font=self.font_entry, state='disabled', width=35, height=10, wrap=tk.WORD)
         self.status.grid(row=5, columnspan=2)
+        widgets.append(self.status)
+
+        # Apply dark mode
+        self.configure(bg='#323639')
+        for widget in widgets:
+            widget.configure(bg='#323639')
+            widget.configure(fg='#FFFFFF')
+
         self.print_to_console("Press SEARCH to begin ...")
 
     def print_to_console(self, message):
