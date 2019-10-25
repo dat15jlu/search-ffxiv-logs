@@ -84,4 +84,5 @@ def read_file_to_string(file):
     return contents
 
 
-# main()
+if __name__ == '__main__':
+    main()

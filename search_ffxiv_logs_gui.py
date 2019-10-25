@@ -1,6 +1,6 @@
 from os import listdir
 
-import search_ffxiv_logs as util
+from search_ffxiv_logs import find_all_matches
 import tkinter as tk
 import datetime
 
@@ -111,6 +111,7 @@ class SearchFFXIVLogsApp(tk.Tk):
         formatted_message = time + message + '\n'
         self.status.insert(tk.INSERT, formatted_message)
         self.status['state'] = 'disabled'
+        self.status.see("end")  # auto scroll status window
         self.update()
 
     def search(self):
@@ -127,7 +128,7 @@ class SearchFFXIVLogsApp(tk.Tk):
 
         self.print_to_console("Searching {} files ...".format(len(files)))
 
-        all_matches = util.find_all_matches(files, regex, is_case_sensitive)
+        all_matches = find_all_matches(files, regex, is_case_sensitive)
         nbr_of_matched_files, nbr_of_matches = count_occurrences(all_matches)
 
         if nbr_of_matches == 0:
@@ -142,6 +143,6 @@ class SearchFFXIVLogsApp(tk.Tk):
         self.print_to_console("Done!")
 
 
-app = SearchFFXIVLogsApp()
-app.mainloop()
-
+if __name__ == '__main__':
+    app = SearchFFXIVLogsApp()
+    app.mainloop()
